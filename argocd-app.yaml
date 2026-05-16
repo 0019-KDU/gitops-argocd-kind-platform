@@ -10,7 +10,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/0019-KDU/gitops-argocd-kind-platform
+    repoURL: https://github.com/<you>/<repo>.git
     targetRevision: main
     # ArgoCD auto-detects kustomization.yaml and uses kustomize
     path: k8s
