@@ -28,7 +28,7 @@ spec:
       containers:
         - name: app
           image: chiradev/url-shortener:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
               name: http
