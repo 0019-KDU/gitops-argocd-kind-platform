@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# Environment files — never commit real secrets
+.env
+.env.local
+.env.*.local
+
+# k8s secret — applied manually, not via ArgoCD
+k8s/secret.yaml
+
+# Docker
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Claude Code memory files
+.claude/

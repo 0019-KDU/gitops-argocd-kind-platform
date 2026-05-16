@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: url-shortener-app
+  namespace: url-shortener
+  labels:
+    app.kubernetes.io/name: url-shortener-app
+    app.kubernetes.io/component: web
+spec:
+  type: ClusterIP
+  selector:
+    app: url-shortener-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000

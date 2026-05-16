@@ -1,0 +1,74 @@
+# Full-stack compose — Next.js app + Redis
+# Usage:
+#   cp .env.local .env          # docker-compose reads .env by default
+#   docker compose up --build -d
+#
+# All ${VAR} references are substituted from the .env file at startup.
+
+name: url-shortener
+
+services:
+
+  # ── Next.js application ────────────────────────────────────
+  app:
+    image: chiradev/url-shortener:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # NEXT_PUBLIC_* are embedded at build time — must be ARGs
+        NEXT_PUBLIC_SUPABASE_URL:    ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_BASE_URL:        ${NEXT_PUBLIC_BASE_URL}
+    container_name: url-shortener-app
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      # Server-side secrets — injected at runtime, never baked into the image
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      # Point to the redis service name, not localhost
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - internal
+    # Prevent the container from gaining extra privileges
+    security_opt:
+      - no-new-privileges:true
+
+  # ── Redis cache ────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: url-shortener-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+        --appendonly yes
+        --requirepass ${REDIS_PASSWORD}
+        --maxmemory 128mb
+        --maxmemory-policy allkeys-lru
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - internal
+    # Redis should never be reachable from outside the compose network
+    expose:
+      - '6379'
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  redisdata:
+    driver: local

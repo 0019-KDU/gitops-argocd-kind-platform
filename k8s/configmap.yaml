@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: url-shortener-config
+  namespace: url-shortener
+  labels:
+    app.kubernetes.io/name: url-shortener
+data:
+  # Non-sensitive config — safe to commit
+  # NEXT_PUBLIC_* are already baked into the Docker image at build time.
+  # Only runtime server-side vars go here.
+  NODE_ENV: "production"
+  PORT: "3000"
+  HOSTNAME: "0.0.0.0"

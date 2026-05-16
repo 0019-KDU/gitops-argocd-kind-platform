@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: url-shortener
+  namespace: argocd
+  # Ensures child resources are deleted when this Application is deleted
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/0019-KDU/gitops-argocd-kind-platform
+    targetRevision: main
+    # ArgoCD auto-detects kustomization.yaml and uses kustomize
+    path: k8s
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: url-shortener
+
+  syncPolicy:
+    automated:
+      prune: true       # Delete resources removed from Git
+      selfHeal: true    # Revert manual kubectl changes back to Git state
+    syncOptions:
+      - CreateNamespace=true   # Creates url-shortener namespace automatically
+      - ServerSideApply=true   # Better handling of large resources
